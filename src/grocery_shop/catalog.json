@@ -1,0 +1,19 @@
+[
+  {
+    "id":1,
+    "name":"Абхазские томаты",
+    "category":"Vegetables",
+    "price":300,
+    "weight":50,
+    "amount":180
+  },
+
+  {
+    "id":2,
+    "name":"Абхазские бананы",
+    "category":"Fruits",
+    "price":1000,
+    "weight":50,
+    "amount":180
+  }
+]
