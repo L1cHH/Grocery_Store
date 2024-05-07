@@ -3,12 +3,12 @@ use crate::pages::category_page_state::CategoryPageState;
 use crate::pages::entry_page_state::EntryPageState;
 use crate::pages::purchase_page_state::PurchasePageState;
 
-mod entry_page_state;
-mod category_page_state;
-mod catalog_page_state;
-mod purchase_page_state;
+pub mod entry_page_state;
+pub mod category_page_state;
+pub mod catalog_page_state;
+pub mod purchase_page_state;
 
-enum Page {
+pub enum Page {
     EntryPage(EntryPageState),
     CategoryPage(CategoryPageState),
     CatalogPage(CatalogPageState),

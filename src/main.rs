@@ -1,46 +1,111 @@
 use std::collections::HashMap;
 use std::env;
+use std::env::current_dir;
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
-use iced::{Application, Command, Element, Renderer, Sandbox, Settings, Theme};
+use std::ptr::hash;
+use iced::{Application, Color, Command, Element, executor, Length, Padding, Renderer, Sandbox, Settings, Theme};
+use iced::Alignment::Center;
+use iced::widget::{button, container, text, Svg, column, Column, Space};
 use crate::grocery_shop::catalog::{Item, Category};
 use crate::grocery_shop::GroceryShop;
+use crate::pages::category_page_state::CategoryPageState;
+use crate::pages::entry_page_state::EntryPageState;
+use crate::pages::Page;
+use crate::styles::{UserButtonStyle, UserContainerStyle, UserTextStyle};
 
 mod user;
 mod grocery_shop;
 mod pages;
+mod styles;
 
 
 fn main() -> iced::Result {
     GroceryShop::run(Settings::default())
 }
 
-enum Message {
-    
+#[derive(Debug, Clone)]
+pub enum Message {
+    ButtonClicked
 }
 
 
 impl Application for GroceryShop {
-    type Executor = ();
+    type Executor = executor::Default;
     type Message = Message;
     type Flags = ();
-    type Theme = Theme::TokyoNight;
+    type Theme = Theme;
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
-        (Self, Command::none())
+        let shop_catalog = read_json_file();
+        (Self::new(shop_catalog, Page::EntryPage(EntryPageState::default())), Command::none())
     }
 
     fn title(&self) -> String {
         "Grocery Shop".to_string()
     }
 
+    fn theme(&self) -> Self::Theme {
+        Theme::Dracula
+    }
+
     fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
-        todo!()
+        match message {
+            Message::ButtonClicked => {
+                self.change_curr_page(Page::CategoryPage(CategoryPageState::default()));
+                Command::none()
+            }
+        }
     }
 
     fn view(&self) -> Element<'_, Self::Message, Self::Theme, Renderer> {
-        todo!()
+        let mut icon_directory = current_dir().unwrap();
+        icon_directory.push("src\\icons");
+
+        let current_page = self.get_curr_page();
+        let content = match current_page {
+            Page::EntryPage(entry_page_state) => {
+
+                let user_label = text("Пользователь")
+                    .size(30)
+                    .style(iced::theme::Text::Color(Color::from_rgba8(187, 104, 147, 0.8)));
+
+                let btn = button("Войти")
+                    .padding(Padding::from([15, 40]))
+                    .style(iced::theme::Button::Custom(Box::new(UserButtonStyle)))
+                    .on_press(Message::ButtonClicked);
+
+                let mut svg_path = icon_directory;
+                svg_path.push("user-svg.svg");
+                let svg = Svg::from_path(svg_path).width(150).height(150);
+
+                container(column![
+                    user_label,
+                    Space::with_height(15),
+                    Svg::from(svg),
+                    btn,
+                ].spacing(10).align_items(Center))
+                    .width(400)
+                    .height(400)
+                    .center_x()
+                    .center_y()
+                    .style(iced::theme::Container::Custom(Box::new(UserContainerStyle)))
+                    .into()
+            }
+            Page::CategoryPage(category_page_state) => {
+                container(text("Second Page"))
+            },
+            _ => {todo!()}
+
+        };
+
+        container(content)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .center_x()
+            .center_y()
+            .into()
     }
 }
 
@@ -51,7 +116,7 @@ impl Application for GroceryShop {
 
 
 
-fn read_json_file() -> Vec<Item> {
+fn read_json_file() -> HashMap<String, Item> {
     let mut curr_dir = env::current_dir().unwrap();
     curr_dir.push("src\\grocery_shop\\catalog.json");
 
@@ -61,5 +126,8 @@ fn read_json_file() -> Vec<Item> {
     file.read_to_string(&mut content).expect("Cant read file");
     let items: Vec<Item> = serde_json::from_str(&content).expect("Cant deserialize json");
 
-    items
+    let hash_map = items.into_iter()
+        .map(|item| (item.name.clone(), item))
+        .collect::<HashMap<String, Item>>();
+    hash_map
 }

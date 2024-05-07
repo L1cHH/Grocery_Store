@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
 use crate::grocery_shop::catalog::{Category, Item};
+use crate::pages::Page;
+
 pub mod catalog;
-pub mod pages;
+
 
 pub struct GroceryShop {
     catalog: HashMap<String, Item>,
@@ -14,9 +16,17 @@ impl GroceryShop {
         particular_item.change_amount(amount);
     }
 
-    pub fn new(catalog: HashMap<String, Item>) -> Self {
+    pub fn new(catalog: HashMap<String, Item>, page: Page) -> Self{
         Self {
-            catalog
+            catalog,
+            page
         }
+    }
+    pub fn get_curr_page(&self) -> &Page {
+        &self.page
+    }
+
+    pub fn change_curr_page(&mut self, page: Page) {
+        self.page = page
     }
 }
