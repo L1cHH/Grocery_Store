@@ -3,27 +3,53 @@ use std::env;
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
+use iced::{Application, Command, Element, Renderer, Sandbox, Settings, Theme};
 use crate::grocery_shop::catalog::{Item, Category};
+use crate::grocery_shop::GroceryShop;
+
 mod user;
 mod grocery_shop;
+mod pages;
 
 
-fn main() {
-
-
-    let items = read_json_file();
-
-    let data: HashMap<String, Item> = items.into_iter().map(|item| (item.name.clone(), item)).collect();
-
-    let shop = grocery_shop::GroceryShop::new(data);
-
-
-
-
-
-
-
+fn main() -> iced::Result {
+    GroceryShop::run(Settings::default())
 }
+
+enum Message {
+    
+}
+
+
+impl Application for GroceryShop {
+    type Executor = ();
+    type Message = Message;
+    type Flags = ();
+    type Theme = Theme::TokyoNight;
+
+    fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
+        (Self, Command::none())
+    }
+
+    fn title(&self) -> String {
+        "Grocery Shop".to_string()
+    }
+
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+        todo!()
+    }
+
+    fn view(&self) -> Element<'_, Self::Message, Self::Theme, Renderer> {
+        todo!()
+    }
+}
+
+
+
+
+
+
+
 
 fn read_json_file() -> Vec<Item> {
     let mut curr_dir = env::current_dir().unwrap();
