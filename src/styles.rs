@@ -121,3 +121,31 @@ impl text_input::StyleSheet for UserInputStyle {
         Color::from_rgba8(187, 104, 147, 0.9)
     }
 }
+
+pub struct CategoryContainerStyle;
+
+impl container::StyleSheet for CategoryContainerStyle {
+    type Style = Theme;
+    fn appearance(&self, style: &Self::Style) -> container::Appearance {
+        container::Appearance {
+            border : Border {
+                color: Color::BLACK,
+                width: 3.0,
+                radius: Radius::from(20)
+            },
+            ..Default::default()
+        }
+    }
+}
+
+pub struct CategoryButtonStyle;
+
+impl button::StyleSheet for CategoryButtonStyle {
+    type Style = Theme;
+    fn active(&self, style: &Self::Style) -> button::Appearance {
+        button::Appearance {
+            background: None,
+            ..Default::default()
+        }
+    }
+}

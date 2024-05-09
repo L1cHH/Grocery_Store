@@ -36,4 +36,8 @@ impl GroceryShop {
     pub fn add_buyer(&mut self, buyer: Buyer) {
         self.buyer = Some(buyer)
     }
+
+    pub fn get_curr_catalog(&self) -> &HashMap<Category, Vec<Item>> {
+        &self.catalog
+    }
 }

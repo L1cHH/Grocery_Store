@@ -2,7 +2,10 @@
   {
     "id":1,
     "name":"Абхазские томаты",
-    "category":"Vegetables",
+    "category": {
+      "category_name": "Vegetables",
+      "svg": "vegetables-svg.svg"
+    },
     "price":300,
     "weight":50,
     "amount":180
@@ -11,7 +14,10 @@
   {
     "id":2,
     "name":"Абхазские бананы",
-    "category":"Fruits",
+    "category": {
+      "category_name": "Fruits",
+      "svg": "fruits-svg.svg"
+    },
     "price":1000,
     "weight":50,
     "amount":180
