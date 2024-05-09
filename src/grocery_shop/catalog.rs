@@ -1,3 +1,5 @@
+use iced::{Element, Renderer};
+use iced::widget::{container, text};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -25,7 +27,7 @@ impl Item {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Category {
     Vegetables,
     Fruits,
@@ -34,4 +36,13 @@ pub enum Category {
     Cheeses,
     Drinks,
     Baking
+}
+
+impl Category {
+    fn view(&self) -> Element<'_, Self::Message, Self::Theme, Renderer> {
+        let name_of_category = text(format!("{self}"));
+
+        container()
+
+    }
 }

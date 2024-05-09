@@ -1,3 +1,4 @@
+use std::collections::btree_map::Entry;
 use std::collections::HashMap;
 use std::env;
 use std::env::current_dir;
@@ -166,7 +167,7 @@ impl Application for GroceryShop {
 
 
 
-fn read_json_file() -> HashMap<String, Item> {
+fn read_json_file() -> HashMap<Category, Vec<Item>> {
     let mut curr_dir = env::current_dir().unwrap();
     curr_dir.push("src\\grocery_shop\\catalog.json");
 
@@ -176,10 +177,13 @@ fn read_json_file() -> HashMap<String, Item> {
     file.read_to_string(&mut content).expect("Cant read file");
     let items: Vec<Item> = serde_json::from_str(&content).expect("Cant deserialize json");
 
-    let hash_map = items.into_iter()
-        .map(|item| (item.name.clone(), item))
-        .collect::<HashMap<String, Item>>();
-    hash_map
+    let mut items_map:HashMap<Category, Vec<Item>> = HashMap::new();
+
+    for item in items.into_iter() {
+        items_map.entry(item.category.clone()).and_modify(|vector| vector.push(item)).or_insert(Vec::new());
+    }
+
+    items_map
 }
 
 fn user_input(placeholder: &str, val: &str) -> TextInput<'static, Message>{
