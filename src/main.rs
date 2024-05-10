@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 use std::{env, fs};
 use std::env::current_dir;
+use std::fmt::format;
 use std::fs::File;
 use std::io::{Read, Write};
 use iced::{Application, Color, Command, Element, executor, Font, Length, Padding, Renderer, Sandbox, Settings, Theme};
 use iced::Alignment::Center;
-use iced::widget::{button, container, text, Svg, column, Column, Space, Text, text_input, TextInput, Container, Row};
+use iced::widget::{button, container, text, Svg, column, Column, Space, Text, text_input, TextInput, Container, Row, Scrollable};
+use iced::widget::scrollable::{Direction, Properties};
 use iced::widget::svg::Handle;
 use crate::grocery_shop::catalog::{Item, Category};
 use crate::grocery_shop::GroceryShop;
@@ -32,7 +34,7 @@ pub enum Message {
     BonusCardInputChanged(String),
     CreditCardInputChanged(String),
     CashInputChanged(String),
-    ToItemsPage
+    ToItemsPage(Category)
 }
 
 
@@ -88,8 +90,8 @@ impl Application for GroceryShop {
             }
             Page::CategoryPage(category_page_state) => {
                 match message {
-                    Message::ToItemsPage => {
-                        self.page = Page::CatalogPage(CatalogPageState::default());
+                    Message::ToItemsPage(category) => {
+                        self.page = Page::CatalogPage(CatalogPageState::default(), category);
                         Command::none()
                     },
                     _ => {Command::none()}
@@ -149,7 +151,7 @@ impl Application for GroceryShop {
                     .center_y()
                     .style(iced::theme::Container::Custom(Box::new(UserContainerStyle)))
                     .into()
-            }
+            },
             Page::CategoryPage(category_page_state) => {
                 let user_label: Text<'_, Theme, Renderer> = text("Выберите Категорию")
                     .size(35)
@@ -163,15 +165,49 @@ impl Application for GroceryShop {
 
                 let category_row = Row::from_vec(category_vec).spacing(10);
 
+                let scrollable = Scrollable::new(category_row)
+                    .width(Length::Fill)
+                    .height(Length::Shrink)
+                    .direction(Direction::Horizontal(Properties::new()));
+
                 container(column![
                     user_label,
                     Space::with_height(20),
-                    container(category_row).padding(20)
+                    container(scrollable).padding(20)
                 ].spacing(20).align_items(Center))
                     .width(600)
                     .height(600)
                     .center_x()
                     .center_y()
+
+            },
+            Page::CatalogPage(catalog_page_state, category) => {
+                let category_name = &category.category_name;
+                let catalog_label = text(format!("Каталог категории {category_name} представлен ниже")).size(20);
+                //let empty_catalog_text = text("Товаров в данной категории не найдено...").size(20);
+
+
+                let catalog = self.get_items_by_category(category).unwrap();
+
+                let mut items_container: Vec<Element<'_, Self::Message, Self::Theme, Renderer>> = {
+                    catalog.iter().map(|item| item.view()).collect()
+                };
+
+                println!("{}", items_container.len());
+
+                let items_row = Row::from_vec(items_container).spacing(10);
+
+                let items_scroll = Scrollable::new(items_row)
+                        .width(Length::Fill)
+                        .height(Length::Shrink)
+                        .direction(Direction::Horizontal(Properties::new()));
+                container(column![
+                    catalog_label,
+                    items_scroll
+                ].spacing(20).align_items(Center)).width(600).height(600).center_y().center_x().into()
+
+
+
 
             },
             _ => {todo!()}
@@ -213,22 +249,6 @@ fn read_json_file() -> HashMap<Category, Vec<Item>> {
 
     items_map
 }
-
-// fn write_json() {
-//     let mut curr_dir = current_dir().unwrap();
-//     curr_dir.push("src\\grocery_shop\\categories.json");
-//
-//     let mut file = fs::File::open(curr_dir).expect("Cant open file");
-//     let mut content = String::new();
-//
-//     file.read_to_string(&mut content).expect("Cant read json");
-//
-//     let category:Vec<Category> = serde_json::from_str(&content).expect("Cant deserialize json");
-//
-//     println!("{category:?}")
-// }
-
-
 fn user_input(placeholder: &str, val: &str) -> TextInput<'static, Message>{
     text_input(placeholder, val)
         .width(150)

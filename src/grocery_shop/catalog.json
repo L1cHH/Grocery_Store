@@ -8,7 +8,8 @@
     },
     "price":300,
     "weight":50,
-    "amount":180
+    "amount":180,
+    "svg": "orange-juice-png.png"
   },
 
   {
@@ -20,6 +21,85 @@
     },
     "price":1000,
     "weight":50,
-    "amount":180
+    "amount":180,
+    "svg": "orange-juice-png.png"
+  },
+
+  {
+    "id":3,
+    "name":"Шоколад AlpenGold",
+    "category": {
+      "category_name": "Sweets",
+      "svg": "sweets-svg.svg"
+    },
+    "price":1000,
+    "weight":50,
+    "amount":180,
+    "svg": "orange-juice-png.png"
+  },
+
+  {
+    "id":4,
+    "name":"Королевские креветки",
+    "category": {
+      "category_name": "Seafood",
+      "svg": "seafood-svg.svg"
+    },
+    "price":1000,
+    "weight":50,
+    "amount":180,
+    "svg": "orange-juice-png.png"
+  },
+
+  {
+    "id":5,
+    "name":"Хлеб",
+    "category": {
+      "category_name": "Bakery",
+      "svg": "bakery-svg.svg"
+    },
+    "price":1000,
+    "weight":50,
+    "amount":180,
+    "svg": "orange-juice-png.png"
+  },
+
+  {
+    "id":6,
+    "name":"Говядина",
+    "category": {
+      "category_name": "Meat",
+      "svg": "meat-svg.svg"
+    },
+    "price":1000,
+    "weight":50,
+    "amount":180,
+    "svg": "orange-juice-png.png"
+  },
+
+  {
+    "id":7,
+    "name":"Консервированный ананас",
+    "category": {
+      "category_name": "Conserve",
+      "svg": "canned-svg.svg"
+    },
+    "price":1000,
+    "weight":50,
+    "amount":180,
+    "svg": "orange-juice-png.png"
+  },
+
+  {
+    "id":8,
+    "name":"Апельсиновый сок",
+    "category": {
+      "category_name": "Drink",
+      "svg": "drink-svg.svg"
+    },
+    "price":1000,
+    "weight":50,
+    "amount":180,
+    "svg": "orange-juice-png.png"
   }
 ]

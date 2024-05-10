@@ -40,4 +40,7 @@ impl GroceryShop {
     pub fn get_curr_catalog(&self) -> &HashMap<Category, Vec<Item>> {
         &self.catalog
     }
+    pub fn get_items_by_category(&self, category: &Category) -> Option<&Vec<Item>> {
+        self.catalog.get(category)
+    }
 }
