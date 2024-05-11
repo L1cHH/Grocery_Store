@@ -1,7 +1,7 @@
 use iced::{Background, Border, Color, Theme, Vector};
 use iced::border::Radius;
 
-use iced::widget::{button, container, text, text_input};
+use iced::widget::{button, Button, container, text, text_input};
 use iced::widget::text_input::Appearance;
 
 
@@ -141,6 +141,19 @@ impl container::StyleSheet for CategoryContainerStyle {
 pub struct CategoryButtonStyle;
 
 impl button::StyleSheet for CategoryButtonStyle {
+    type Style = Theme;
+    fn active(&self, style: &Self::Style) -> button::Appearance {
+        button::Appearance {
+            background: None,
+            ..Default::default()
+        }
+    }
+}
+
+pub struct AddButtonStyle;
+
+impl button::StyleSheet for AddButtonStyle {
+
     type Style = Theme;
     fn active(&self, style: &Self::Style) -> button::Appearance {
         button::Appearance {

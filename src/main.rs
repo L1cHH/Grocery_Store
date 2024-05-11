@@ -34,7 +34,8 @@ pub enum Message {
     BonusCardInputChanged(String),
     CreditCardInputChanged(String),
     CashInputChanged(String),
-    ToItemsPage(Category)
+    ToItemsPage(Category),
+    AddToCart
 }
 
 
@@ -88,7 +89,7 @@ impl Application for GroceryShop {
                     _ => {Command::none()}
                 }
             }
-            Page::CategoryPage(category_page_state) => {
+            Page::CategoryPage(_) => {
                 match message {
                     Message::ToItemsPage(category) => {
                         self.page = Page::CatalogPage(CatalogPageState::default(), category);
@@ -96,14 +97,17 @@ impl Application for GroceryShop {
                     },
                     _ => {Command::none()}
                 }
-            },
+            }
+            Page::CatalogPage(_, choiced_catetgory) => {
+                match message {
+
+                }
+            }
             _ => {todo!()}
         }
     }
 
     fn view(&self) -> Element<'_, Self::Message, Self::Theme, Renderer> {
-        //ICON DIRECTORY
-
 
         let current_page = self.get_curr_page();
         let content = match current_page {
@@ -125,7 +129,7 @@ impl Application for GroceryShop {
                 svg_path.push("user-svg.svg");
 
                 //let user_svg_handler = Handle::from_memory(include_bytes!("C:\\Users\\kiril\\RustroverProjects\\grocery-shop\\src\\icons\\user-svg.svg").as_slice());
-                let user_svg_handler = Handle::from_path("C:\\Users\\kiril\\RustroverProjects\\grocery-shop\\src\\icons\\user-svg.svg");
+                let user_svg_handler = Handle::from_path("C:\\Users\\kiril\\RustroverProjects\\Grocery_Store\\src\\icons\\user-svg.svg");
 
                 let svg = Svg::new(user_svg_handler).width(150).height(150);
 
@@ -206,9 +210,6 @@ impl Application for GroceryShop {
                     items_scroll
                 ].spacing(20).align_items(Center)).width(600).height(600).center_y().center_x().into()
 
-
-
-
             },
             _ => {todo!()}
 
@@ -243,7 +244,7 @@ fn read_json_file() -> HashMap<Category, Vec<Item>> {
     let mut items_map:HashMap<Category, Vec<Item>> = HashMap::new();
 
     for item in items.into_iter() {
-        items_map.entry(item.category.clone()).and_modify(|vector| vector.push(item)).or_insert(Vec::new());
+        items_map.entry(item.category.clone()).and_modify(|vector| vector.push(item.clone())).or_insert(vec![item]);
     }
     println!("{items_map:?}");
 
