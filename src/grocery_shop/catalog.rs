@@ -39,7 +39,7 @@ impl Item {
         let mut path_to_items:PathBuf = PathBuf::from("C:\\Users\\kiril\\RustroverProjects\\grocery-shop\\src\\items".to_string());
         path_to_items.push(&self.svg);
 
-        let item_svg = Image::<image::Handle>::new(path_to_items).width(100).height(100);
+        let item_svg = Image::<image::Handle>::new(path_to_items).width(50).height(50);
 
         let name_of_item = &self.name;
         let amount_of_item = &self.amount;
@@ -55,7 +55,7 @@ impl Item {
 
         let svg_btn_handler = svg::Handle::from_path("C:\\Users\\kiril\\RustroverProjects\\grocery-shop\\src\\icons\\new-add.svg".to_string());
 
-        let svg_btn = Svg::new(svg_btn_handler).width(50).height(50);
+        let svg_btn = Svg::new(svg_btn_handler).width(35).height(35);
 
         let btn_add = button(svg_btn).style(iced::theme::Button::Custom(Box::new(AddButtonStyle))).on_press(Message::AddToCart(self.clone()));
 

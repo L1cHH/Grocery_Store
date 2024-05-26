@@ -53,6 +53,35 @@ pub enum CartMessage {
 
 impl Cart {
 
+    pub fn get_final_price(&self) -> &usize {
+        match self {
+            Cart::EmptyCart => {&0usize},
+            Cart::NonEmptyCart(cart) => {
+                &cart.final_price
+            }
+        }
+    }
+
+    pub fn change_final_price(&mut self, bonuses: usize) {
+        match self {
+            Cart::NonEmptyCart(cart) => {
+                cart.final_price -= bonuses;
+            }
+            _ => {}
+        }
+    }
+
+    pub fn reset_cart(&mut self) {
+        match self {
+            Cart::NonEmptyCart(cart) => {
+                cart.cart_items = HashMap::new();
+                cart.final_price = 0;
+                cart.items_amount = 0;
+            }
+            _ => {}
+        }
+    }
+
     pub fn add_item(&mut self, mut item: Item) {
         item.amount = 1;
         match self {
@@ -110,9 +139,9 @@ impl Cart {
                 let final_price = cart.final_price;
                 let items_amount = cart.items_amount;
 
-                let cart_text = text("Ваша корзина").size(30);
-                let final_price_text = text(format!("Итоговая цена: {final_price}")).size(20);
-                let items_amount_text = text(format!("Кол-во продуктов: {items_amount}")).size(20);
+                let cart_text = text("Ваша корзина").size(15);
+                let final_price_text = text(format!("Итоговая цена: {final_price}")).size(10);
+                let items_amount_text = text(format!("Кол-во продуктов: {items_amount}")).size(10);
 
                 let items_vec: Vec<(&Item, &usize)> = cart.cart_items.iter().map(|(item, amount)| (item, amount)).collect();
 
@@ -126,9 +155,9 @@ impl Cart {
                 container(column![
                     cart_text,
                     row![final_price_text, items_amount_text].spacing(40).align_items(Center),
-                    Space::with_height(20),
+                    Space::with_height(10),
                     items_scroll
-                ].spacing(15).align_items(Center)).padding(10).style(iced::theme::Container::Custom(Box::new(UserContainerStyle))).into()
+                ].spacing(10).align_items(Center)).padding(10).style(iced::theme::Container::Custom(Box::new(UserContainerStyle))).into()
 
             }
         }
@@ -142,7 +171,7 @@ fn cart_items_view<'a>(cart_items: Vec<(&'a Item, &'a usize)>) -> Row<Message> {
     let vec: Vec<Element<Message>> = cart_items.iter().map(|(item, amount)| {
         let mut path_to_items:PathBuf = PathBuf::from("C:\\Users\\kiril\\RustroverProjects\\grocery-shop\\src\\items".to_string());
         path_to_items.push(&item.svg);
-        let item_svg = Image::<image::Handle>::new(path_to_items).width(100).height(100);
+        let item_svg = Image::<image::Handle>::new(path_to_items).width(50).height(50);
 
         let name_of_item = &item.name;
         let amount_of_item = amount;

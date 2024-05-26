@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::{Read, Write};
 use iced::{Application, Color, Command, Element, executor, Length, Padding, Renderer, Sandbox, Settings, Theme};
 use iced::Alignment::Center;
-use iced::widget::{button, container, text, Svg, column, Column, Space, Text, text_input, TextInput, Row, Scrollable};
+use iced::widget::{button, container, text, Svg, column, Column, Space, Text, text_input, TextInput, Row, Scrollable, row};
 use iced::widget::scrollable::{Direction, Properties};
 use iced::widget::svg::Handle;
 use crate::cart::{Cart, CartMessage};
@@ -24,26 +24,25 @@ mod pages;
 mod styles;
 mod cart;
 
-// lazy_static! {
-//     static ref CART: Mutex<Cart> = Mutex::new(Cart::new());
-// }
-
-
-
 fn main() -> iced::Result {
     GroceryShop::run(Settings::default())
 }
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    ToCategoryPage,
     BonusCardInputChanged(String),
     CreditCardInputChanged(String),
     CashInputChanged(String),
+
+    ToCategoryPage,
     ToItemsPage(Category),
-    CartMessage(CartMessage),
+
     AddToCart(Item),
-    DeleteFromCart(Item)
+    DeleteFromCart(Item),
+
+    PayByCash(usize),
+    PayByCreditCard(usize),
+    UseBonuses(usize)
 }
 
 
@@ -188,6 +187,51 @@ impl Application for GroceryShop {
                         Command::none()
                     }
 
+                    Message::PayByCash(price) => {
+                        let user = self.get_user_mut().unwrap();
+
+                        match user.try_to_pay_cash(price) {
+                            Ok(msg) => {
+                                println!("{msg}")
+                            }
+                            Err(err_msg) => {
+                                eprintln!("{err_msg}")
+                            }
+                        }
+
+                        Command::none()
+                    }
+
+                    Message::PayByCreditCard(price) => {
+                        let user = self.get_user_mut().unwrap();
+
+                        match user.try_to_pay_credit_card(price) {
+                            Ok(msg) => {
+                                println!("{msg}")
+                            }
+                            Err(err_msg) => {
+                                eprintln!("{err_msg}")
+                            }
+                        }
+
+                        Command::none()
+                    }
+
+                    Message::UseBonuses(price) => {
+                        let user = self.get_user_mut().unwrap();
+
+                        match user.use_bonuses(price) {
+                            Ok(msg) => {
+                                println!("{msg}")
+                            }
+                            Err(err_msg) => {
+                                eprintln!("{err_msg}")
+                            }
+                        }
+
+                        Command::none()
+                    }
+
                     _ => {todo!()}
                 }
             }
@@ -270,21 +314,21 @@ impl Application for GroceryShop {
 
                 container(column![
                     user_label,
-                    Space::with_height(20),
+                    Space::with_height(10),
                     container(scrollable).padding(20),
-                    Space::with_height(30),
+                    Space::with_height(20),
                     cart_items_view
                 ].spacing(20).align_items(Center))
                     .width(800)
-                    .height(800)
+                    .height(1500)
                     .center_x()
                     .center_y()
 
             },
             Page::CatalogPage(catalog_page_state, category) => {
                 let category_name = &category.category_name;
-                let catalog_label = text(format!("Каталог категории '{category_name}' представлен ниже")).size(30);
-                //let empty_catalog_text = text("Товаров в данной категории не найдено...").size(20);
+                let catalog_label = text(format!("Каталог категории '{category_name}'")).size(20);
+
 
                 let catalog = self.get_items_by_category(category).unwrap();
 
@@ -303,7 +347,7 @@ impl Application for GroceryShop {
                         .height(Length::Shrink)
                         .direction(Direction::Horizontal(Properties::new()));
 
-                let category_btn = button("Категории")
+                let category_btn = button("Сменить категорию")
                     .padding(Padding::from([15, 40]))
                     .on_press(Message::ToCategoryPage);
 
@@ -313,15 +357,23 @@ impl Application for GroceryShop {
 
                 let cart_items_view: Element<_> = cart.view();
 
+                let payment_menu = user.view();
 
-                container(column![
+                let items_container = container(column![
                     catalog_label,
-                    Space::with_height(20),
+                    Space::with_height(10),
                     items_scroll,
                     category_btn,
-                    Space::with_height(30),
-                    cart_items_view
-                ].spacing(20).align_items(Center)).width(800).height(800).center_y().center_x().into()
+                ].spacing(20).align_items(Center)).center_x().center_y().padding(15).style(iced::theme::Container::Custom(Box::new(UserContainerStyle)));
+
+
+                container(row![
+                    column![
+                    items_container,
+                    Space::with_height(10),
+                    cart_items_view].spacing(20).align_items(Center),
+                    payment_menu].spacing(10).align_items(Center)
+                ).width(1000).height(1200).center_y().center_x().into()
 
             },
             _ => {todo!()}
@@ -336,12 +388,6 @@ impl Application for GroceryShop {
             .into()
     }
 }
-
-
-
-
-
-
 
 
 fn read_json_file() -> HashMap<Category, Vec<Item>> {
