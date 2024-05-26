@@ -9,7 +9,7 @@
     "price":300,
     "weight":50,
     "amount":180,
-    "svg": "orange-juice-png.png"
+    "svg": "abxaz-tomate.png"
   },
 
   {
@@ -19,10 +19,10 @@
       "category_name": "Fruits",
       "svg": "fruits-svg.svg"
     },
-    "price":1000,
-    "weight":50,
-    "amount":180,
-    "svg": "orange-juice-png.png"
+    "price":100,
+    "weight":405,
+    "amount":34,
+    "svg": "abxaz-banana.png"
   },
 
   {
@@ -32,10 +32,10 @@
       "category_name": "Sweets",
       "svg": "sweets-svg.svg"
     },
-    "price":1000,
+    "price":70,
     "weight":50,
-    "amount":180,
-    "svg": "orange-juice-png.png"
+    "amount":68,
+    "svg": "alpen-gold.png"
   },
 
   {
@@ -46,9 +46,9 @@
       "svg": "seafood-svg.svg"
     },
     "price":1000,
-    "weight":50,
-    "amount":180,
-    "svg": "orange-juice-png.png"
+    "weight":600,
+    "amount":123,
+    "svg": "krevetki.png"
   },
 
   {
@@ -58,10 +58,10 @@
       "category_name": "Bakery",
       "svg": "bakery-svg.svg"
     },
-    "price":1000,
-    "weight":50,
-    "amount":180,
-    "svg": "orange-juice-png.png"
+    "price":45,
+    "weight":301,
+    "amount":55,
+    "svg": "hleb.png"
   },
 
   {
@@ -72,9 +72,9 @@
       "svg": "meat-svg.svg"
     },
     "price":1000,
-    "weight":50,
-    "amount":180,
-    "svg": "orange-juice-png.png"
+    "weight":547,
+    "amount":98,
+    "svg": "meat-gov.png"
   },
 
   {
@@ -84,10 +84,10 @@
       "category_name": "Conserve",
       "svg": "canned-svg.svg"
     },
-    "price":1000,
-    "weight":50,
-    "amount":180,
-    "svg": "orange-juice-png.png"
+    "price":230,
+    "weight":200,
+    "amount":132,
+    "svg": "kons-ananas.png"
   },
 
   {
@@ -97,9 +97,9 @@
       "category_name": "Drink",
       "svg": "drink-svg.svg"
     },
-    "price":1000,
-    "weight":50,
-    "amount":180,
+    "price":120,
+    "weight":1000,
+    "amount":134,
     "svg": "orange-juice-png.png"
   }
 ]

@@ -2,17 +2,14 @@ use std::collections::HashMap;
 use std::{env};
 use std::env::current_dir;
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::{Read};
 use iced::{Application, Color, Command, Element, executor, Length, Padding, Renderer, Sandbox, Settings, Theme};
 use iced::Alignment::Center;
-use iced::widget::{button, container, text, Svg, column, Column, Space, Text, text_input, TextInput, Row, Scrollable, row};
+use iced::widget::{button, container, text, Svg, column, Text, text_input, TextInput, Row, Scrollable, row, Space};
 use iced::widget::scrollable::{Direction, Properties};
 use iced::widget::svg::Handle;
-use crate::cart::{Cart, CartMessage};
 use crate::grocery_shop::catalog::{Item, Category};
 use crate::grocery_shop::GroceryShop;
-use crate::pages::catalog_page_state::CatalogPageState;
-use crate::pages::category_page_state::CategoryPageState;
 use crate::pages::entry_page_state::EntryPageState;
 use crate::pages::Page;
 use crate::styles::{UserButtonStyle, UserContainerStyle, UserInputStyle};
@@ -90,16 +87,16 @@ impl Application for GroceryShop {
                         );
 
                         self.add_buyer(buyer);
-                        self.page = Page::CategoryPage(CategoryPageState::default());
+                        self.page = Page::CategoryPage;
                         Command::none()
                     },
                     _ => {Command::none()}
                 }
             }
-            Page::CategoryPage(_) => {
+            Page::CategoryPage => {
                 match message {
                     Message::ToItemsPage(category) => {
-                        self.page = Page::CatalogPage(CatalogPageState::default(), category);
+                        self.page = Page::CatalogPage(category);
                         Command::none()
                     },
                     Message::AddToCart(item) => {
@@ -142,7 +139,7 @@ impl Application for GroceryShop {
                     _ => {Command::none()}
                 }
             }
-            Page::CatalogPage(_, choiced_catetgory) => {
+            Page::CatalogPage(_) => {
                 match message {
                     Message::AddToCart(item) => {
                         {
@@ -183,7 +180,7 @@ impl Application for GroceryShop {
                     }
 
                     Message::ToCategoryPage => {
-                        self.page = Page::CategoryPage(CategoryPageState::default());
+                        self.page = Page::CategoryPage;
                         Command::none()
                     }
 
@@ -260,7 +257,6 @@ impl Application for GroceryShop {
                 let mut svg_path = icon_directory;
                 svg_path.push("user-svg.svg");
 
-                //let user_svg_handler = Handle::from_memory(include_bytes!("C:\\Users\\kiril\\RustroverProjects\\grocery-shop\\src\\icons\\user-svg.svg").as_slice());
                 let user_svg_handler = Handle::from_path("C:\\Users\\kiril\\RustroverProjects\\grocery-shop\\src\\icons\\user-svg.svg");
 
                 let svg = Svg::new(user_svg_handler).width(150).height(150);
@@ -288,7 +284,7 @@ impl Application for GroceryShop {
                     .style(iced::theme::Container::Custom(Box::new(UserContainerStyle)))
                     .into()
             },
-            Page::CategoryPage(category_page_state) => {
+            Page::CategoryPage => {
                 let user_label: Text<'_, Theme, Renderer> = text("Выберите Категорию")
                     .size(35)
                     .style(iced::theme::Text::Color(Color::from_rgba8(187, 104, 147, 0.8))).into();
@@ -325,7 +321,7 @@ impl Application for GroceryShop {
                     .center_y()
 
             },
-            Page::CatalogPage(catalog_page_state, category) => {
+            Page::CatalogPage(category) => {
                 let category_name = &category.category_name;
                 let catalog_label = text(format!("Каталог категории '{category_name}'")).size(20);
 
@@ -376,8 +372,6 @@ impl Application for GroceryShop {
                 ).width(1000).height(1200).center_y().center_x().into()
 
             },
-            _ => {todo!()}
-
         };
 
         container(content)

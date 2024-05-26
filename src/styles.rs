@@ -1,7 +1,7 @@
 use iced::{Background, Border, Color, Theme, Vector};
 use iced::border::Radius;
 
-use iced::widget::{button, Button, container, text, text_input};
+use iced::widget::{button, container, text, text_input};
 use iced::widget::text_input::Appearance;
 
 

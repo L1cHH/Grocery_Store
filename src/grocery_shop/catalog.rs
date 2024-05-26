@@ -1,13 +1,11 @@
-use std::fmt::format;
 use std::path::PathBuf;
-use iced::{Element, Renderer, Theme};
+use iced::{Element, Renderer};
 use iced::Alignment::Center;
-use iced::widget::{container, Svg, text, column, button, Button, Text, Space, Image, svg, image, row};
+use iced::widget::{container, Svg, text, column, button, Button, Image, svg, image, row};
 use serde::{Deserialize, Serialize};
-use crate::cart::CartMessage;
 use crate::grocery_shop::GroceryShop;
 use crate::Message;
-use crate::styles::{AddButtonStyle, CategoryButtonStyle, CategoryContainerStyle, UserButtonStyle, UserTextStyle};
+use crate::styles::{AddButtonStyle, CategoryButtonStyle, CategoryContainerStyle};
 
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, Hash, PartialEq)]
 pub struct Item {
