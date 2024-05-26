@@ -40,7 +40,20 @@ impl GroceryShop {
     pub fn get_curr_catalog(&self) -> &HashMap<Category, Vec<Item>> {
         &self.catalog
     }
+
     pub fn get_items_by_category(&self, category: &Category) -> Option<&Vec<Item>> {
         self.catalog.get(category)
+    }
+
+    pub fn get_items_by_category_mut(&mut self, category: Category) -> Option<&mut Vec<Item>> {
+        self.catalog.get_mut(&category)
+    }
+
+    pub fn get_user(&self) -> Option<&Buyer> {
+        self.buyer.as_ref()
+    }
+
+    pub fn get_user_mut(&mut self) -> Option<&mut Buyer> {
+        self.buyer.as_mut()
     }
 }

@@ -1,27 +1,33 @@
 use std::collections::HashMap;
-use std::{env, fs};
+use std::{env};
 use std::env::current_dir;
-use std::fmt::format;
 use std::fs::File;
 use std::io::{Read, Write};
-use iced::{Application, Color, Command, Element, executor, Font, Length, Padding, Renderer, Sandbox, Settings, Theme};
+use iced::{Application, Color, Command, Element, executor, Length, Padding, Renderer, Sandbox, Settings, Theme};
 use iced::Alignment::Center;
-use iced::widget::{button, container, text, Svg, column, Column, Space, Text, text_input, TextInput, Container, Row, Scrollable};
+use iced::widget::{button, container, text, Svg, column, Column, Space, Text, text_input, TextInput, Row, Scrollable};
 use iced::widget::scrollable::{Direction, Properties};
 use iced::widget::svg::Handle;
+use crate::cart::{Cart, CartMessage};
 use crate::grocery_shop::catalog::{Item, Category};
 use crate::grocery_shop::GroceryShop;
 use crate::pages::catalog_page_state::CatalogPageState;
 use crate::pages::category_page_state::CategoryPageState;
 use crate::pages::entry_page_state::EntryPageState;
 use crate::pages::Page;
-use crate::styles::{UserButtonStyle, UserContainerStyle, UserTextStyle, UserInputStyle};
+use crate::styles::{UserButtonStyle, UserContainerStyle, UserInputStyle};
 use crate::user::Buyer;
 
 mod user;
 mod grocery_shop;
 mod pages;
 mod styles;
+mod cart;
+
+// lazy_static! {
+//     static ref CART: Mutex<Cart> = Mutex::new(Cart::new());
+// }
+
 
 
 fn main() -> iced::Result {
@@ -35,7 +41,9 @@ pub enum Message {
     CreditCardInputChanged(String),
     CashInputChanged(String),
     ToItemsPage(Category),
-    AddToCart
+    CartMessage(CartMessage),
+    AddToCart(Item),
+    DeleteFromCart(Item)
 }
 
 
@@ -100,7 +108,45 @@ impl Application for GroceryShop {
             }
             Page::CatalogPage(_, choiced_catetgory) => {
                 match message {
+                    Message::AddToCart(item) => {
+                        {
+                            let items = self.get_items_by_category_mut(item.category.clone()).unwrap();
+                            match items.iter_mut().find(|element| **element == item) {
+                                Some(item) => { item.amount -= 1 },
+                                None => panic!("Cant find particular item in CartMessage::AddItem")
+                            }
+                        }
 
+
+                        let user_handler = self.get_user_mut().unwrap();
+
+                        let cart = user_handler.get_cart_mut();
+
+                        cart.add_item(item);
+
+
+                        Command::none()
+                    }
+
+                    Message::DeleteFromCart(item) => {
+                        {
+                            let items = self.get_items_by_category_mut(item.category.clone()).unwrap();
+                            match items.iter_mut().find(|element| element.name == item.name) {
+                                Some(item) => { item.amount += 1 },
+                                None => panic!("Cant find particular item in CartMessage::DeleteFromCart")
+                            }
+                        }
+
+                        let user_handler = self.get_user_mut().unwrap();
+
+                        let cart = user_handler.get_cart_mut();
+
+                        cart.delete_item(item);
+
+                        Command::none()
+                    }
+
+                    _ => {todo!()}
                 }
             }
             _ => {todo!()}
@@ -129,7 +175,7 @@ impl Application for GroceryShop {
                 svg_path.push("user-svg.svg");
 
                 //let user_svg_handler = Handle::from_memory(include_bytes!("C:\\Users\\kiril\\RustroverProjects\\grocery-shop\\src\\icons\\user-svg.svg").as_slice());
-                let user_svg_handler = Handle::from_path("C:\\Users\\kiril\\RustroverProjects\\Grocery_Store\\src\\icons\\user-svg.svg");
+                let user_svg_handler = Handle::from_path("C:\\Users\\kiril\\RustroverProjects\\grocery-shop\\src\\icons\\user-svg.svg");
 
                 let svg = Svg::new(user_svg_handler).width(150).height(150);
 
@@ -187,15 +233,21 @@ impl Application for GroceryShop {
             },
             Page::CatalogPage(catalog_page_state, category) => {
                 let category_name = &category.category_name;
-                let catalog_label = text(format!("Каталог категории {category_name} представлен ниже")).size(20);
+                let catalog_label = text(format!("Каталог категории '{category_name}' представлен ниже")).size(30);
                 //let empty_catalog_text = text("Товаров в данной категории не найдено...").size(20);
 
 
                 let catalog = self.get_items_by_category(category).unwrap();
 
-                let mut items_container: Vec<Element<'_, Self::Message, Self::Theme, Renderer>> = {
-                    catalog.iter().map(|item| item.view()).collect()
+                let mut items_container: Vec<Element<_>> = {
+                    catalog
+                        .iter()
+                        .map(|item| {
+                            item.view()
+                        }).collect()
                 };
+
+
 
                 println!("{}", items_container.len());
 
@@ -205,10 +257,21 @@ impl Application for GroceryShop {
                         .width(Length::Fill)
                         .height(Length::Shrink)
                         .direction(Direction::Horizontal(Properties::new()));
+
+                let user = self.get_user().unwrap();
+
+                let cart = user.get_cart();
+
+                let cart_items_view: Element<_> = cart.view();
+
+
                 container(column![
                     catalog_label,
-                    items_scroll
-                ].spacing(20).align_items(Center)).width(600).height(600).center_y().center_x().into()
+                    Space::with_height(20),
+                    items_scroll,
+                    Space::with_height(30),
+                    cart_items_view
+                ].spacing(20).align_items(Center)).width(800).height(800).center_y().center_x().into()
 
             },
             _ => {todo!()}
@@ -246,7 +309,6 @@ fn read_json_file() -> HashMap<Category, Vec<Item>> {
     for item in items.into_iter() {
         items_map.entry(item.category.clone()).and_modify(|vector| vector.push(item.clone())).or_insert(vec![item]);
     }
-    println!("{items_map:?}");
 
     items_map
 }
