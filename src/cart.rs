@@ -8,7 +8,7 @@ use iced::widget::scrollable::{Direction, Properties};
 use crate::grocery_shop::catalog::Item;
 use crate::grocery_shop::GroceryShop;
 use crate::Message;
-use crate::styles::{AddButtonStyle, CategoryContainerStyle};
+use crate::styles::{AddButtonStyle, CategoryContainerStyle, UserContainerStyle};
 
 #[derive(Default)]
 pub enum Cart {
@@ -65,7 +65,6 @@ impl Cart {
 
             Cart::NonEmptyCart(cart) => {
                 cart.add_item_to_cart(item);
-                dbg!(cart.items_amount);
             }
         }
     }
@@ -129,7 +128,7 @@ impl Cart {
                     row![final_price_text, items_amount_text].spacing(40).align_items(Center),
                     Space::with_height(20),
                     items_scroll
-                ].spacing(15).align_items(Center)).padding(10).into()
+                ].spacing(15).align_items(Center)).padding(10).style(iced::theme::Container::Custom(Box::new(UserContainerStyle))).into()
 
             }
         }
@@ -159,7 +158,7 @@ fn cart_items_view<'a>(cart_items: Vec<(&'a Item, &'a usize)>) -> Row<Message> {
 
         let svg_btn_handler = svg::Handle::from_path(path.to_string());
 
-        let svg_btn = Svg::new(svg_btn_handler).width(50).height(50);
+        let svg_btn = Svg::new(svg_btn_handler).width(35).height(35);
 
 
         let btn_del = button(svg_btn).style(iced::theme::Button::Custom(Box::new(AddButtonStyle))).on_press(Message::DeleteFromCart(item.clone().clone()));

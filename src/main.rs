@@ -103,6 +103,43 @@ impl Application for GroceryShop {
                         self.page = Page::CatalogPage(CatalogPageState::default(), category);
                         Command::none()
                     },
+                    Message::AddToCart(item) => {
+                        {
+                            let items = self.get_items_by_category_mut(item.category.clone()).unwrap();
+                            match items.iter_mut().find(|element| **element == item) {
+                                Some(item) => { item.amount -= 1 },
+                                None => panic!("Cant find particular item in CartMessage::AddItem")
+                            }
+                        }
+
+
+                        let user_handler = self.get_user_mut().unwrap();
+
+                        let cart = user_handler.get_cart_mut();
+
+                        cart.add_item(item);
+
+
+                        Command::none()
+                    }
+
+                    Message::DeleteFromCart(item) => {
+                        {
+                            let items = self.get_items_by_category_mut(item.category.clone()).unwrap();
+                            match items.iter_mut().find(|element| element.name == item.name) {
+                                Some(item) => { item.amount += 1 },
+                                None => panic!("Cant find particular item in CartMessage::DeleteFromCart")
+                            }
+                        }
+
+                        let user_handler = self.get_user_mut().unwrap();
+
+                        let cart = user_handler.get_cart_mut();
+
+                        cart.delete_item(item);
+
+                        Command::none()
+                    }
                     _ => {Command::none()}
                 }
             }
@@ -143,6 +180,11 @@ impl Application for GroceryShop {
 
                         cart.delete_item(item);
 
+                        Command::none()
+                    }
+
+                    Message::ToCategoryPage => {
+                        self.page = Page::CategoryPage(CategoryPageState::default());
                         Command::none()
                     }
 
@@ -220,13 +262,21 @@ impl Application for GroceryShop {
                     .height(Length::Shrink)
                     .direction(Direction::Horizontal(Properties::new()));
 
+                let user = self.get_user().unwrap();
+
+                let cart = user.get_cart();
+
+                let cart_items_view: Element<_> = cart.view();
+
                 container(column![
                     user_label,
                     Space::with_height(20),
-                    container(scrollable).padding(20)
+                    container(scrollable).padding(20),
+                    Space::with_height(30),
+                    cart_items_view
                 ].spacing(20).align_items(Center))
-                    .width(600)
-                    .height(600)
+                    .width(800)
+                    .height(800)
                     .center_x()
                     .center_y()
 
@@ -235,7 +285,6 @@ impl Application for GroceryShop {
                 let category_name = &category.category_name;
                 let catalog_label = text(format!("Каталог категории '{category_name}' представлен ниже")).size(30);
                 //let empty_catalog_text = text("Товаров в данной категории не найдено...").size(20);
-
 
                 let catalog = self.get_items_by_category(category).unwrap();
 
@@ -247,16 +296,16 @@ impl Application for GroceryShop {
                         }).collect()
                 };
 
-
-
-                println!("{}", items_container.len());
-
                 let items_row = Row::from_vec(items_container).spacing(10);
 
                 let items_scroll = Scrollable::new(items_row)
                         .width(Length::Fill)
                         .height(Length::Shrink)
                         .direction(Direction::Horizontal(Properties::new()));
+
+                let category_btn = button("Категории")
+                    .padding(Padding::from([15, 40]))
+                    .on_press(Message::ToCategoryPage);
 
                 let user = self.get_user().unwrap();
 
@@ -269,6 +318,7 @@ impl Application for GroceryShop {
                     catalog_label,
                     Space::with_height(20),
                     items_scroll,
+                    category_btn,
                     Space::with_height(30),
                     cart_items_view
                 ].spacing(20).align_items(Center)).width(800).height(800).center_y().center_x().into()
