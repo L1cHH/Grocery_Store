@@ -39,7 +39,9 @@ pub enum Message {
 
     PayByCash(usize),
     PayByCreditCard(usize),
-    UseBonuses(usize)
+
+    PayByCashAndBonus(usize),
+    PayByCreditCardAndBonus(usize),
 }
 
 
@@ -68,15 +70,27 @@ impl Application for GroceryShop {
             Page::EntryPage(entry_page_state) => {
                 match message {
                     Message::BonusCardInputChanged(amount) => {
-                        entry_page_state.bonus_card_input = amount;
+                        match is_correct_input(amount.clone()) {
+                            Ok(()) => entry_page_state.bonus_card_input = amount,
+                            Err(str) => eprintln!("{str}")
+                        }
+
                         Command::none()
                     }
                     Message::CreditCardInputChanged(amount) => {
-                        entry_page_state.credit_card_input = amount;
+                        match is_correct_input(amount.clone()) {
+                            Ok(()) => entry_page_state.credit_card_input = amount,
+                            Err(str) => eprintln!("{str}")
+                        }
+
                         Command::none()
                     }
                     Message::CashInputChanged(amount) => {
-                        entry_page_state.cash_input = amount;
+                        match is_correct_input(amount.clone()) {
+                            Ok(()) => entry_page_state.cash_input = amount,
+                            Err(str) => eprintln!("{str}")
+                        }
+
                         Command::none()
                     }
                     Message::ToCategoryPage => {
@@ -214,17 +228,60 @@ impl Application for GroceryShop {
                         Command::none()
                     }
 
-                    Message::UseBonuses(price) => {
+                    Message::PayByCreditCardAndBonus(price) => {
                         let user = self.get_user_mut().unwrap();
 
                         match user.use_bonuses(price) {
-                            Ok(msg) => {
-                                println!("{msg}")
+                            Ok(rest) => {
+                                match rest {
+                                    0 => {},
+                                    rest => {
+                                        match user.try_to_pay_credit_card(rest) {
+                                            Ok(msg) => {
+                                                println!("{msg}")
+                                            }
+                                            Err(err_msg) => {
+                                                eprintln!("{err_msg}")
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             Err(err_msg) => {
                                 eprintln!("{err_msg}")
                             }
                         }
+
+
+
+                        Command::none()
+                    }
+
+                    Message::PayByCashAndBonus(price) => {
+                        let user = self.get_user_mut().unwrap();
+
+                        match user.use_bonuses(price) {
+                            Ok(rest) => {
+                                match rest {
+                                    0 => {},
+                                    rest => {
+                                        match user.try_to_pay_cash(rest) {
+                                            Ok(msg) => {
+                                                println!("{msg}")
+                                            }
+                                            Err(err_msg) => {
+                                                eprintln!("{err_msg}")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Err(err_msg) => {
+                                eprintln!("{err_msg}")
+                            }
+                        }
+
+
 
                         Command::none()
                     }
@@ -232,7 +289,6 @@ impl Application for GroceryShop {
                     _ => {todo!()}
                 }
             }
-            _ => {todo!()}
         }
     }
 
@@ -408,4 +464,70 @@ fn user_input(placeholder: &str, val: &str) -> TextInput<'static, Message>{
         .padding(10)
         .size(15)
         .style(iced::theme::TextInput::Custom(Box::new(UserInputStyle)))
+}
+fn is_correct_input(amount: String) -> Result<(), String> {
+    match amount.parse::<usize>() {
+        Ok(_) => {
+            Ok(())
+        }
+        Err(_) => {
+            Err("Incorrect input".to_string())
+        }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+    use crate::cart::{Cart, CartWithItems};
+    use crate::grocery_shop::catalog::{Category, Item};
+    use crate::grocery_shop::GroceryShop;
+    use crate::pages::entry_page_state::EntryPageState;
+    use crate::pages::Page;
+    use crate::read_json_file;
+    use crate::user::Buyer;
+
+    #[test]
+    fn it_returns_true() {
+        assert!(true)
+    }
+
+    #[test]
+    fn it_successfully_add_catalog() {
+        let data = read_json_file();
+
+        let shop = GroceryShop::new(data.clone(), Page::EntryPage(EntryPageState::default()));
+        assert_eq!(&data, shop.get_curr_catalog())
+    }
+
+    #[test]
+    fn it_successfully_add_item_to_cart() {
+
+        let user = Buyer::new(
+            "6000".to_string(),
+            "6000".to_string(),
+            "6000".to_string(),
+        );
+
+        let item = Item::new(
+            1,
+            "Креветки".to_string(),
+            Category {category_name: "Seafood".to_string(), svg: "some_path".to_string()},
+            1000,
+            50,
+            120,
+            "some_path".to_string()
+        );
+
+        let cart_with_items = CartWithItems::new();
+
+        let mut cart = Cart::NonEmptyCart(cart_with_items);
+
+        cart.add_item(item);
+
+        assert_eq!(cart.get_cart_items_amount(), 1)
+    }
+
+
 }

@@ -23,14 +23,14 @@ impl Cart {
     }
 }
 #[derive(Clone)]
-struct CartWithItems {
+pub struct CartWithItems {
     cart_items: HashMap<Item, usize>,
     final_price: usize,
-    items_amount: usize
+    pub items_amount: usize
 }
 
 impl CartWithItems {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             cart_items: HashMap::new(),
             final_price: 0,
@@ -62,12 +62,24 @@ impl Cart {
         }
     }
 
-    pub fn change_final_price(&mut self, bonuses: usize) {
+    pub fn get_cart_items_amount(&mut self) -> usize {
+        match self {
+            Cart::NonEmptyCart(cart) => {
+                cart.items_amount
+            },
+            Cart::EmptyCart => {
+                0
+            }
+        }
+    }
+
+    pub fn change_final_price(&mut self, bonuses: usize) -> usize{
         match self {
             Cart::NonEmptyCart(cart) => {
                 cart.final_price -= bonuses;
+                cart.final_price
             }
-            _ => {}
+            _ => {panic!("err with changing final balance")}
         }
     }
 

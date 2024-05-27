@@ -29,18 +29,20 @@ impl Buyer {
         }
     }
 
-    pub fn use_bonuses(&mut self, cart_price: usize) -> Result<String, String> {
+    pub fn use_bonuses(&mut self, cart_price: usize) -> Result<usize, String> {
         match self.bonus_card_balance {
             0 => Err("You don't have any bonuses".to_string()),
             _ => {
                 if self.bonus_card_balance >= cart_price {
                     self.bonus_card_balance -= cart_price;
                     self.cart.reset_cart();
+                    Ok(0)
                 } else {
-                    self.cart.change_final_price(self.bonus_card_balance);
+                    let rest = self.cart.change_final_price(self.bonus_card_balance);
                     self.bonus_card_balance = 0;
+                    Ok(rest)
                 }
-                Ok("You successfully used your bonuses".to_string())
+
             }
         }
     }
@@ -101,7 +103,8 @@ impl Buyer {
         let pay_credit_btn = button("Оплатить кред/картой").padding(Padding::from([10, 20])).on_press(Message::PayByCreditCard(*cart_price));
         let pay_cash_btn = button("Оплатить наличными").padding(Padding::from([10, 20])).on_press(Message::PayByCash(*cart_price));
 
-        let use_bonus_btn = button("Использовать бонусы").padding(Padding::from([10, 20])).on_press(Message::UseBonuses(*cart_price));
+        let use_bonus_credit_btn = button("Оплатить картой используя бонусы").padding(Padding::from([5, 10])).on_press(Message::PayByCreditCardAndBonus(*cart_price));
+        let use_bonus_cash_btn = button("Оплатить наличными используя бонусы").padding(Padding::from([5, 10])).on_press(Message::PayByCashAndBonus(*cart_price));
 
         container(column![
             bonus_text,
@@ -110,7 +113,8 @@ impl Buyer {
             Space::with_height(5),
             cart_price_text,
             Space::with_height(5),
-            row![column![pay_credit_btn, pay_cash_btn].spacing(10).align_items(iced::Alignment::Center), use_bonus_btn].spacing(20).align_items(iced::Alignment::Center)
+            row![column![pay_credit_btn, pay_cash_btn].spacing(10).align_items(iced::Alignment::Center),
+                column![use_bonus_credit_btn, use_bonus_cash_btn].spacing(10).align_items(iced::Alignment::Center)].spacing(20).align_items(iced::Alignment::Center)
         ].align_items(Start).spacing(10)).padding(15).style(iced::theme::Container::Custom(Box::new(UserContainerStyle))).into()
 
     }
