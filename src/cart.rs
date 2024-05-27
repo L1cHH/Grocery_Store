@@ -24,8 +24,8 @@ impl Cart {
 }
 #[derive(Clone)]
 pub struct CartWithItems {
-    cart_items: HashMap<Item, usize>,
-    final_price: usize,
+    pub cart_items: HashMap<Item, usize>,
+    pub final_price: usize,
     pub items_amount: usize
 }
 
@@ -79,7 +79,7 @@ impl Cart {
                 cart.final_price -= bonuses;
                 cart.final_price
             }
-            _ => {panic!("err with changing final balance")}
+            _ => {panic!("Err")}
         }
     }
 

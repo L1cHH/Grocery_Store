@@ -29,18 +29,27 @@ impl Buyer {
         }
     }
 
-    pub fn use_bonuses(&mut self, cart_price: usize) -> Result<usize, String> {
+    pub fn get_balance(&self) -> (usize, usize, usize) {
+        (self.bonus_card_balance, self.credit_card_balance, self.cash_in_hand)
+    }
+
+    pub fn add_bonuses(&mut self, bonuses: usize) {
+        self.bonus_card_balance += bonuses;
+    }
+
+    pub fn use_bonuses(&mut self, cart_price: usize) -> Result<(usize, usize), String> {
         match self.bonus_card_balance {
             0 => Err("You don't have any bonuses".to_string()),
             _ => {
+                let bonuse_balance = self.bonus_card_balance;
                 if self.bonus_card_balance >= cart_price {
                     self.bonus_card_balance -= cart_price;
                     self.cart.reset_cart();
-                    Ok(0)
+                    Ok((0, bonuse_balance))
                 } else {
                     let rest = self.cart.change_final_price(self.bonus_card_balance);
                     self.bonus_card_balance = 0;
-                    Ok(rest)
+                    Ok((rest, bonuse_balance))
                 }
 
             }

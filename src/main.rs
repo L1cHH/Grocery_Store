@@ -234,13 +234,14 @@ impl Application for GroceryShop {
                         match user.use_bonuses(price) {
                             Ok(rest) => {
                                 match rest {
-                                    0 => {},
-                                    rest => {
+                                    (0, _) => {},
+                                    (rest, bonuses) => {
                                         match user.try_to_pay_credit_card(rest) {
                                             Ok(msg) => {
                                                 println!("{msg}")
                                             }
                                             Err(err_msg) => {
+                                                user.add_bonuses(bonuses);
                                                 eprintln!("{err_msg}")
                                             }
                                         }
@@ -263,13 +264,14 @@ impl Application for GroceryShop {
                         match user.use_bonuses(price) {
                             Ok(rest) => {
                                 match rest {
-                                    0 => {},
-                                    rest => {
+                                    (0, _) => {},
+                                    (rest, bonuses) => {
                                         match user.try_to_pay_cash(rest) {
                                             Ok(msg) => {
                                                 println!("{msg}")
                                             }
                                             Err(err_msg) => {
+                                                user.add_bonuses(bonuses);
                                                 eprintln!("{err_msg}")
                                             }
                                         }
@@ -487,12 +489,6 @@ mod tests {
     use crate::pages::Page;
     use crate::read_json_file;
     use crate::user::Buyer;
-
-    #[test]
-    fn it_returns_true() {
-        assert!(true)
-    }
-
     #[test]
     fn it_successfully_add_catalog() {
         let data = read_json_file();
@@ -500,7 +496,6 @@ mod tests {
         let shop = GroceryShop::new(data.clone(), Page::EntryPage(EntryPageState::default()));
         assert_eq!(&data, shop.get_curr_catalog())
     }
-
     #[test]
     fn it_successfully_add_item_to_cart() {
 
@@ -528,6 +523,84 @@ mod tests {
 
         assert_eq!(cart.get_cart_items_amount(), 1)
     }
+    #[test]
+    fn it_successfully_add_bonuses() {
+        let mut user = Buyer::new(
+            "6000".to_string(),
+            "8000".to_string(),
+            "9000".to_string(),
+        );
 
+        user.add_bonuses(2000);
+
+        assert_eq!(user.get_balance().0, 8000)
+    }
+    #[test]
+    fn it_successfully_use_bonuses() {
+        let mut user = Buyer::new(
+            "6000".to_string(),
+            "8000".to_string(),
+            "9000".to_string(),
+        );
+
+        *user.get_cart_mut() = Cart::NonEmptyCart(CartWithItems {
+            cart_items: HashMap::new(),
+            final_price: 7000,
+            items_amount: 2
+        });
+
+        assert_eq!(user.use_bonuses(7000), Ok((1000, 6000)));
+    }
+    #[test]
+    fn it_successfully_use_bonuses_second() {
+        let mut user = Buyer::new(
+            "6000".to_string(),
+            "8000".to_string(),
+            "9000".to_string(),
+        );
+
+        *user.get_cart_mut() = Cart::NonEmptyCart(CartWithItems {
+            cart_items: HashMap::new(),
+            final_price: 5000,
+            items_amount: 2
+        });
+
+        assert_eq!(user.use_bonuses(5000), Ok((0, 6000)));
+    }
+    #[test]
+    fn it_wrongly_use_bonuses() {
+        let mut user = Buyer::new(
+            "0".to_string(),
+            "8000".to_string(),
+            "9000".to_string(),
+        );
+
+        *user.get_cart_mut() = Cart::NonEmptyCart(CartWithItems {
+            cart_items: HashMap::new(),
+            final_price: 8000,
+            items_amount: 2
+        });
+
+        assert_eq!(user.use_bonuses(8000), Err("You don't have any bonuses".to_string()))
+    }
+    #[test]
+    fn it_correctly_pay_by_cash() {
+        let mut user = Buyer::new(
+            "6000".to_string(),
+            "8000".to_string(),
+            "9000".to_string(),
+        );
+
+        *user.get_cart_mut() = Cart::NonEmptyCart(CartWithItems {
+            cart_items: HashMap::new(),
+            final_price: 8000,
+            items_amount: 2
+        });
+
+        assert_eq!(user.try_to_pay_cash(8000), Ok("Successfully paid by cash!".to_string()));
+
+        assert_eq!(user.get_cart_mut().get_final_price(), &0usize);
+        assert_eq!(user.get_balance().2, 1000)
+    }
 
 }
